@@ -25,6 +25,10 @@ enum Box {
         SIMD2(-0.69, -1.05), SIMD2(-0.23, -1.06), SIMD2(0.23, -1.04), SIMD2(0.69, -1.06),
         SIMD2(0, -0.56), SIMD2(0.46, -0.57), SIMD2(0.92, -0.56),
     ]
+    /// Le fond du bac de sortie, sous la trappe. On le voit par une vitre dans la face avant de la machine.
+    static let binFloor: Float = -0.52
+    /// Le haut de cette vitre.
+    static let binTop: Float = -0.1
     /// Combien de doudous la machine contient quand elle est pleine.
     static let full = 10
 }
@@ -174,6 +178,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     private var prongGoal = Claw.open
     private var plushes: [Plush] = []
     private var held: Plush?
+    /// Le dernier doudou gagné, posé dans le bac.
+    private var prize: Plush?
     private var slipAt: Float = 2
     private var liftFrom: Float = 0
     private var tripFrom = Box.home
@@ -224,14 +230,16 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     }
 
     /// La vue change de taille : on recalcule la fenêtre par laquelle on regarde la machine.
-    func resize(_ size: CGSize, pointsPerMeter: Float, restDistance: Float) {
+    /// `panel` : la hauteur, en points, de la face avant de la machine en bas de la vue (le pupitre).
+    func resize(_ size: CGSize, panel: CGFloat, pointsPerMeter: Float, restDistance: Float) {
         let w = Float(size.width), h = Float(size.height)
         guard w > 20, h > 20 else { return }
-        // Il faut voir au moins toute la largeur et toute la hauteur de la machine.
-        let unitsPerPoint = max((Box.halfW + 0.1) / (w / 2), (Box.top + 0.19) / h)
+        let below = max(0, min(Float(panel), h * 0.6))
+        // Au-dessus du pupitre, il faut voir au moins toute la largeur et toute la hauteur de la machine.
+        let unitsPerPoint = max((Box.halfW + 0.1) / (w / 2), (Box.top + 0.19) / (h - below))
         let halfH = unitsPerPoint * h / 2
         lock.lock()
-        window = Window(halfW: unitsPerPoint * w / 2, halfH: halfH, centerY: -0.05 + halfH,
+        window = Window(halfW: unitsPerPoint * w / 2, halfH: halfH, centerY: -0.05 - below * unitsPerPoint + halfH,
                         unitsPerMeter: unitsPerPoint * pointsPerMeter, restDistance: restDistance)
         lock.unlock()
     }
@@ -273,7 +281,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let k = gain
         lock.unlock()
         if target.z <= 0 { target.z = w.restDistance }
-        eye += (target - eye) * (dt > 0 ? 1 - exp(-dt * 14) : 1)
+        eye += (target - eye) * (dt > 0 ? 1 - exp(-dt * 32) : 1)
 
         let ez = max(0.16, min(1.2, eye.z)) * w.unitsPerMeter
         let reach = ez * 0.75
@@ -423,13 +431,25 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         for p in plushes { p.sway(dt) }
 
         // Un doudou tombé dans la trappe est gagné, qu'il ait été porté ou simplement poussé.
-        for p in plushes where p !== held && p.position.y < -0.32 {
-            p.node.removeFromParentNode()
-            p.shadow.removeFromParentNode()
+        // Il reste dans le bac, derrière sa vitre, jusqu'à ce qu'un autre s'approche de la trappe.
+        if let old = prize, plushes.contains(where: { overHole($0.position) && $0.position.y < 0.45 }) {
+            old.node.removeFromParentNode()
+            old.shadow.removeFromParentNode()
+            prize = nil
+        }
+        for p in plushes where p !== held && p.position.y < -0.12 {
             plushes.removeAll { $0 === p }
+            prize?.node.removeFromParentNode()
+            prize?.shadow.removeFromParentNode()
+            prize = p
             emit(.plop)
             emit(.won(p.species))
         }
+        prize?.sway(dt)
+    }
+
+    private func overHole(_ p: SIMD3<Float>) -> Bool {
+        p.x > Box.holeMinX && p.x < Box.holeMaxX && p.z > Box.holeMinZ && p.z < Box.holeMaxZ
     }
 
     /// Range la pince, le câble et le chariot à leur place.
@@ -667,32 +687,48 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         panel(40, 14, SIMD3<Float>(0, 3, Box.back - 0.5), yaw: 0, room)
         // Le socle de la salle, de chaque côté de la machine (pas dessous : la trappe doit rester creuse)
         for side in [Float(-1), 1] {
-            _ = box(20, 1, depth + 0.4, SIMD3<Float>(side * (Box.halfW + 10), -0.53, midZ - 0.22), Paint.matte(0xE9B9C6))
+            _ = box(20, 4, depth + 0.4, SIMD3<Float>(side * (Box.halfW + 10), -2.03, midZ - 0.22), Paint.matte(0xE9B9C6))
         }
 
         // Le sol de la machine, avec la trappe
         let floor = SCNMaterial()
         floor.lightingModel = .lambert
         floor.diffuse.contents = UIColor(hex: Tint.floor)
-        func slab(_ x0: Float, _ x1: Float, _ z0: Float, _ z1: Float) {
-            let n = box(x1 - x0, 1, z1 - z0, SIMD3<Float>((x0 + x1) / 2, -0.5, (z0 + z1) / 2), cream, solid: true)
+        // Les blocs descendent bas : leur face avant est le pupitre, qu'on voit sous la vitre.
+        func slab(_ x0: Float, _ x1: Float, _ z0: Float, _ z1: Float, from y0: Float = -4, to y1: Float = 0) {
+            let n = box(x1 - x0, y1 - y0, z1 - z0, SIMD3<Float>((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), cream, solid: true)
             n.geometry?.materials = [cream, cream, cream, cream, floor, cream]
         }
         slab(Box.holeMaxX, Box.halfW, Box.back, Box.front)
         slab(-Box.halfW, Box.holeMaxX, Box.back, Box.holeMinZ)
-        slab(-Box.halfW, Box.holeMaxX, Box.holeMaxZ, Box.front)
         slab(-Box.halfW, Box.holeMinX, Box.holeMinZ, Box.holeMaxZ)
+        // Devant la trappe, la face avant est percée d'une vitre : on voit le bac où tombent les doudous.
+        slab(-Box.halfW, Box.holeMaxX, Box.holeMaxZ, Box.front, from: Box.binTop, to: 0)
+        slab(-Box.halfW, Box.holeMaxX, Box.holeMaxZ, Box.front, from: -4, to: Box.binFloor)
+        slab(-Box.halfW, Box.holeMinX, Box.holeMaxZ, Box.front, from: Box.binFloor, to: Box.binTop)
 
         let holeW = Box.holeMaxX - Box.holeMinX, holeL = Box.holeMaxZ - Box.holeMinZ
         let holeX = (Box.holeMinX + Box.holeMaxX) / 2, holeZ = (Box.holeMinZ + Box.holeMaxZ) / 2
-        // L'intérieur de la trappe : on en voit les parois de l'intérieur.
-        let pit = SCNMaterial()
-        pit.lightingModel = .constant
-        pit.diffuse.contents = UIColor(hex: 0x7A3F63)
-        pit.cullMode = .front
-        let lining = box(holeW - 0.008, 0.8, holeL - 0.008, SIMD3<Float>(holeX, -0.404, holeZ), pit)
-        lining.geometry?.materials = [pit]
-        _ = box(holeW, 0.1, holeL, SIMD3<Float>(holeX, -0.85, holeZ), Paint.flat(0x5C2E4B), solid: true)
+        // L'intérieur du bac, rose : un fond, deux côtés, un plancher.
+        let binH = -Box.binFloor
+        let binY = Box.binFloor / 2
+        panel(holeW, binH, SIMD3<Float>(holeX, binY, Box.holeMinZ + 0.004), yaw: 0, Paint.flat(0xE98AAA))
+        panel(holeL, binH, SIMD3<Float>(Box.holeMinX + 0.004, binY, holeZ), yaw: .pi / 2, Paint.flat(0xD9739A))
+        panel(holeL, binH, SIMD3<Float>(Box.holeMaxX - 0.004, binY, holeZ), yaw: -.pi / 2, Paint.flat(0xDD7A9F))
+        _ = box(holeW, 0.1, holeL + 0.03, SIMD3<Float>(holeX, Box.binFloor - 0.047, holeZ + 0.015), Paint.flat(0xF9BFD0), solid: true)
+        // La vitre du bac et son cadre, sur la face avant
+        let openH = Box.binTop - Box.binFloor
+        let openY = (Box.binTop + Box.binFloor) / 2
+        panel(holeW, openH, SIMD3<Float>(holeX, openY, Box.front + 0.002), yaw: 0, glass(), order: 20)
+        let trim = Paint.gloss(Tint.rose)
+        for y in [Box.binTop + 0.018, Box.binFloor - 0.018] {
+            _ = box(holeW + 0.07, 0.036, 0.016, SIMD3<Float>(holeX, y, Box.front + 0.006), trim, chamfer: 0.006)
+        }
+        for x in [Box.holeMinX - 0.018, Box.holeMaxX + 0.018] {
+            _ = box(0.036, openH, 0.016, SIMD3<Float>(x, openY, Box.front + 0.006), trim, chamfer: 0.006)
+        }
+        // Un liseré tout le long du pupitre, sous la vitre de la machine
+        _ = box(2 * Box.halfW + 0.02, 0.028, 0.014, SIMD3<Float>(0, -0.03, Box.front + 0.006), trim)
         // Le rebord
         let rim = Paint.gloss(Tint.rose)
         _ = box(holeW + 0.06, 0.016, 0.03, SIMD3<Float>(holeX, 0.008, Box.holeMinZ - 0.015), rim)
@@ -702,7 +738,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         wall(0.4, 4, depth + 0.8, SIMD3<Float>(-Box.halfW - 0.2, 1.5, midZ))
         wall(0.4, 4, depth + 0.8, SIMD3<Float>(Box.halfW + 0.2, 1.5, midZ))
         wall(2 * Box.halfW + 0.8, 4, 0.4, SIMD3<Float>(0, 1.5, Box.back - 0.2))
-        wall(2 * Box.halfW + 0.8, 4, 0.4, SIMD3<Float>(0, 1.5, Box.front + 0.2))
+        wall(2 * Box.halfW + 0.8, 6, 0.4, SIMD3<Float>(0, 1, Box.front + 0.2))
 
         // Le fond, les montants, les vitres, le plafond et l'enseigne
         panel(2 * Box.halfW, Box.top, SIMD3<Float>(0, Box.top / 2, Box.back + 0.002), yaw: 0, textured(Backdrop.poster()))
@@ -795,7 +831,7 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let top = SCNMaterial()
         top.lightingModel = .lambert
         top.diffuse.contents = UIColor(hex: floor)
-        let base = box(2, 1, depth, SIMD3<Float>(x, -0.5, midZ), frame)
+        let base = box(2, 4, depth, SIMD3<Float>(x, -2, midZ), frame)
         base.geometry?.materials = [frame, frame, frame, frame, top, frame]
         panel(2, Box.top, SIMD3<Float>(x, Box.top / 2, Box.back + 0.002), yaw: 0, textured(Backdrop.dots(wall.0, wall.1), repeatX: 2, repeatY: 2))
         for sx in [Float(-1), 1] {

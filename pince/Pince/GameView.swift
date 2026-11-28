@@ -36,42 +36,40 @@ struct GameView: View {
         GeometryReader { geo in
             let size = geo.size
             let insets = geo.safeAreaInsets
-            // Téléphone couché : pas la place pour un pupitre, les commandes se posent sur les côtés.
-            let floating = size.width > size.height && size.height < 520
+            let wide = size.width > size.height
+            // Téléphone couché : les commandes se posent dans les coins.
+            let compact = wide && size.height < 520
+            // Sur un grand écran, les commandes sont dessinées plus gros.
+            let k: CGFloat = min(size.width, size.height) >= 700 ? 1.4 : 1
+            // La hauteur du pupitre : la face avant de la machine, sous la vitre. Elle est en 3D elle aussi,
+            // avec le bac où tombent les doudous ; les commandes sont posées dessus.
+            let panel = wide ? max(120, size.height * 0.27) : min(250 * k, max(190 * k, size.height * 0.27)) + insets.bottom
             ZStack {
-                if floating {
-                    MachineView(game: game)
-                    FloatingControls(height: size.height, insets: insets)
-                } else {
-                    // Sur un grand écran, le pupitre est dessiné plus gros.
-                    let k: CGFloat = min(size.width, size.height) >= 700 ? 1.4 : 1
-                    // Écran couché (iPhone Duo ouvert, iPad) : la machine prend toute la place, les pièces et les
-                    // boutons passent par-dessus, et le pupitre ne garde qu'une rangée de commandes.
-                    let wide = size.width > size.height
-                    let panel = wide ? min(170 * k, max(132 * k, size.height * 0.21)) : min(250 * k, max(190 * k, size.height * 0.27))
-                    VStack(spacing: 0) {
-                        MachineView(game: game)
-                            .overlay(alignment: .top) {
-                                if wide {
-                                    ZStack {
-                                        CoinPill()
-                                        HStack {
-                                            TrackingBadge()
-                                            Spacer()
-                                            TopButtons()
-                                        }
-                                    }
-                                    .padding(.horizontal, max(16, insets.leading + 8))
-                                    .padding(.top, max(12, insets.top + 6))
-                                    .scaleEffect(k, anchor: .top)
-                                    .frame(width: size.width / k)
-                                    .frame(width: size.width, alignment: .top)
-                                }
-                            }
-                        ControlPanel(width: size.width / k, height: panel / k, bottomInset: insets.bottom / k, header: !wide)
+                MachineView(game: game, panel: panel)
+
+                VStack(spacing: 0) {
+                    ZStack {
+                        CoinPill()
+                        HStack {
+                            TrackingBadge()
+                            Spacer()
+                            TopButtons()
+                        }
+                    }
+                    .padding(.horizontal, max(16, insets.leading + 8) / k)
+                    .padding(.top, max(12, insets.top + 6) / k)
+                    .frame(width: size.width / k)
+                    .scaleEffect(k, anchor: .top)
+                    .frame(width: size.width, alignment: .top)
+                    Spacer(minLength: 0)
+                    if compact {
+                        CornerControls(height: size.height, insets: insets)
+                    } else {
+                        ControlBar(width: size.width / k, height: (panel - insets.bottom) / k, wide: wide)
                             .frame(width: size.width / k)
                             .scaleEffect(k, anchor: .bottom)
-                            .frame(width: size.width, height: panel + insets.bottom, alignment: .bottom)
+                            .frame(width: size.width, height: panel - insets.bottom, alignment: .bottom)
+                            .padding(.bottom, insets.bottom)
                     }
                 }
 
@@ -103,13 +101,25 @@ struct GameView: View {
 
 struct MachineView: UIViewRepresentable {
     let game: Game
+    /// La hauteur, en points, de la face avant de la machine en bas de l'écran.
+    let panel: CGFloat
 
-    func makeUIView(context: Context) -> StageView { StageView(game: game) }
-    func updateUIView(_ view: StageView, context: Context) {}
+    func makeUIView(context: Context) -> StageView {
+        let view = StageView(game: game)
+        view.panel = panel
+        return view
+    }
+
+    func updateUIView(_ view: StageView, context: Context) {
+        view.panel = panel
+    }
 }
 
 final class StageView: SCNView {
     private let game: Game
+    var panel: CGFloat = 0 {
+        didSet { if oldValue != panel { refresh() } }
+    }
 
     init(game: Game) {
         self.game = game
@@ -146,7 +156,7 @@ final class StageView: SCNView {
     /// La taille de la vue et le sens de l'écran fixent la « fenêtre » par laquelle on regarde la machine.
     private func refresh() {
         let pad = traitCollection.userInterfaceIdiom == .pad
-        game.machine.resize(bounds.size, pointsPerMeter: pad ? 5200 : 6100, restDistance: pad ? 0.5 : 0.38)
+        game.machine.resize(bounds.size, panel: panel, pointsPerMeter: pad ? 5200 : 6100, restDistance: pad ? 0.5 : 0.38)
         if let orientation = window?.windowScene?.interfaceOrientation, orientation != .unknown {
             game.tracker.orientation = orientation
         }
@@ -433,135 +443,72 @@ struct DropControl: View {
     }
 }
 
-/// Le bac de sortie, juste sous la trappe de la machine : le doudou gagné y tombe. Il ouvre la collection.
-struct Tray: View {
+/// Un raccourci vers la collection, sous le bac de sortie.
+struct CollectionChip: View {
     @Environment(Game.self) private var game
-    let width: CGFloat
-    @State private var fall: CGFloat = 0
 
     var body: some View {
-        let height = width * 0.92
         Button(action: {
             game.say(.pop)
             Haptics.tap()
             game.showCollection = true
         }) {
-            VStack(spacing: 6) {
-                ZStack(alignment: .bottom) {
-                    // Le fond du bac, sombre en haut : c'est par là que tombent les doudous.
-                    LinearGradient(colors: [Color(hex: 0x3F1F38), Color(hex: 0x8A4A70)], startPoint: .top, endPoint: .bottom)
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color(hex: 0xF7A8BC))
-                        .frame(height: height * 0.16)
-                        .padding(.horizontal, 7)
-                        .padding(.bottom, 6)
-                    if let last = game.lastPrize {
-                        Portrait(species: last, size: height * 0.7)
-                            .padding(.bottom, height * 0.09)
-                            .offset(y: fall)
-                    } else {
-                        Image(systemName: "arrow.down")
-                            .font(.system(size: height * 0.3, weight: .black))
-                            .foregroundStyle(.white.opacity(0.3))
-                            .padding(.bottom, height * 0.3)
-                    }
-                    // Le volet du haut
-                    VStack(spacing: 0) {
-                        Rectangle().fill(Color(hex: Tint.rose)).frame(height: 7)
-                        Spacer(minLength: 0)
-                    }
-                }
-                .frame(width: width, height: height)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color(hex: Tint.coral), lineWidth: 3))
-                Text("\(game.collected)/\(Species.allCases.count)")
-                    .font(.toon(15))
-                    .foregroundStyle(Color(hex: Tint.plum))
+            HStack(spacing: 6) {
+                Image(systemName: "teddybear.fill").font(.system(size: 14, weight: .bold))
+                Text("\(game.collected)/\(Species.allCases.count)").font(.toon(15))
             }
+            .foregroundStyle(Color(hex: Tint.plum))
+            .padding(.horizontal, 12)
+            .frame(height: 34)
+            .background(Capsule().fill(.white))
+            .overlay(Capsule().strokeBorder(Color(hex: Tint.coral), lineWidth: 2.5))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(T("Mes doudous", "My plushies"))
-        .onChange(of: game.winTick) { _, _ in
-            fall = -height
-            withAnimation(.interpolatingSpring(stiffness: 170, damping: 11)) { fall = 0 }
-        }
     }
 }
 
-/// Le pupitre de la machine, sous la vitre.
-struct ControlPanel: View {
+/// Les commandes, posées sur la face avant de la machine : le manche au milieu, le bouton à droite.
+/// La gauche reste libre : c'est là que se trouve le bac de sortie, sous la trappe.
+struct ControlBar: View {
     @Environment(Game.self) private var game
     let width: CGFloat
     let height: CGFloat
-    let bottomInset: CGFloat
-    /// Les pièces et les boutons sont-ils dans le pupitre ? (Sinon ils sont posés sur la machine.)
-    var header = true
+    let wide: Bool
 
     var body: some View {
-        let row = height - (header ? 56 : 13)
-        let inner = min(width, 640) - 40
-        let stick = min(row - 26, 150, inner * 0.4)
-        VStack(spacing: 0) {
-            Rectangle().fill(Color(hex: Tint.rose)).frame(height: 5)
-            if header {
-                ZStack {
-                    CoinPill()
-                    HStack {
-                        TrackingBadge()
-                        Spacer()
-                        TopButtons()
-                    }
-                }
-                .padding(.horizontal, 16)
-                .frame(height: 51)
-            } else {
-                Spacer().frame(height: 8)
+        let inner = min(width, 660) - 32
+        let stick = min(height - 34, 150, inner * 0.4)
+        HStack(spacing: 0) {
+            VStack {
+                Spacer(minLength: 0)
+                if !wide { CollectionChip().padding(.bottom, 18) }
             }
-            // Comme sur une vraie machine : le bac de sortie est à gauche, sous la trappe.
-            HStack(spacing: 0) {
-                Tray(width: min(inner * 0.27, 112, (row - 27) / 0.92))
-                Spacer(minLength: 4)
-                Joystick(diameter: stick) { game.stick($0) }
-                Spacer(minLength: 4)
-                DropControl(diameter: min(stick * 0.74, inner * 0.29))
-            }
-            .padding(.horizontal, 20)
-            .frame(maxWidth: 640)
-            .frame(height: row)
-            Spacer(minLength: 0)
+            .frame(maxWidth: .infinity)
+            Joystick(diameter: stick) { game.stick($0) }
+            DropControl(diameter: min(stick * 0.74, inner * 0.29, height - 58))
+                .frame(maxWidth: .infinity)
         }
+        .padding(.horizontal, 16)
+        .frame(maxWidth: 660)
+        .frame(height: height)
         .frame(maxWidth: .infinity)
-        .frame(height: height + bottomInset)
-        .background(
-            LinearGradient(colors: [Color(hex: Tint.cream), Color(hex: 0xFFE9DD)], startPoint: .top, endPoint: .bottom)
-        )
     }
 }
 
-/// Les commandes posées sur l'image, pour un téléphone tenu couché.
-struct FloatingControls: View {
+/// Les commandes dans les coins, pour un téléphone tenu couché : la machine reste dégagée.
+struct CornerControls: View {
     @Environment(Game.self) private var game
     let height: CGFloat
     let insets: EdgeInsets
 
     var body: some View {
-        // Le manche reste tout à gauche, devant la machine voisine : la trappe doit rester visible.
         let stick = min(120, height * 0.3)
-        VStack {
-            HStack(alignment: .top, spacing: 10) {
-                CoinPill()
-                TrackingBadge().padding(.top, 5)
-                Spacer()
-                TopButtons()
-            }
+        HStack(alignment: .bottom) {
+            Joystick(diameter: stick) { game.stick($0) }
             Spacer()
-            HStack(alignment: .bottom) {
-                Joystick(diameter: stick) { game.stick($0) }
-                Spacer()
-                DropControl(diameter: stick * 0.8)
-            }
+            DropControl(diameter: stick * 0.8)
         }
-        .padding(.top, max(12, insets.top + 6))
         .padding(.bottom, max(14, insets.bottom + 6))
         .padding(.leading, max(14, insets.leading - 8))
         .padding(.trailing, max(14, insets.trailing - 8))
@@ -759,6 +706,14 @@ struct SettingsCard: View {
                     .font(.toon(13, .medium))
                     .foregroundStyle(Color(hex: Tint.plum, opacity: 0.7))
                     .fixedSize(horizontal: false, vertical: true)
+                if game.depth > 0, game.tracking != .none {
+                    // Le relief doit suivre la tête : quand on va à droite, on découvre le côté droit de la machine.
+                    // Si un appareil donne un axe à l'envers, on le retourne ici.
+                    Toggle(T("Inverser gauche-droite", "Flip left-right"), isOn: Binding(get: { game.flipX }, set: { game.setFlip(x: $0) }))
+                        .font(.toon(14, .bold))
+                    Toggle(T("Inverser haut-bas", "Flip up-down"), isOn: Binding(get: { game.flipY }, set: { game.setFlip(y: $0) }))
+                        .font(.toon(14, .bold))
+                }
             }
             HStack {
                 if game.depth > 0, game.tracking != .none {
@@ -787,7 +742,10 @@ struct SettingsCard: View {
         case .face, .camera:
             let privacy = T(" Aucune image n'est enregistrée ni envoyée.", " No image is recorded or sent.")
             if game.faceSeen {
-                return T("Je vois ton visage, à environ \(game.faceDistance) cm.", "I can see your face, about \(game.faceDistance) cm away.") + privacy
+                let side = game.faceRight >= 0 ? T("à droite", "to the right") : T("à gauche", "to the left")
+                let lift = game.faceUp >= 0 ? T("vers le haut", "up") : T("vers le bas", "down")
+                return T("Je vois ta tête : \(abs(game.faceRight)) cm \(side), \(abs(game.faceUp)) cm \(lift), à \(game.faceDistance) cm de l'écran.",
+                         "I can see your head: \(abs(game.faceRight)) cm \(side), \(abs(game.faceUp)) cm \(lift), \(game.faceDistance) cm from the screen.") + privacy
             }
             return T("Je ne vois pas ton visage : place-toi bien face à la caméra avant, dans la lumière.",
                      "I can't see your face: sit right in front of the front camera, in good light.") + privacy
