@@ -1,0 +1,1 @@
+iphone : iPhone 11 Pro | com.apple.CoreSimulator.SimDeviceType.iPhone-11-Pro | com.apple.CoreSimulator.SimRuntime.iOS-27-2
