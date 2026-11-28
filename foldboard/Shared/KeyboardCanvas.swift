@@ -1999,8 +1999,11 @@ final class KeyboardCanvas: UIView {
             $0.showLayoutSwitch = true
         }
         let on = c.visibilityProbe()
+        // Clavier à une main : le raccourci n'a pas sa place dans la barre, il est posé dans la place libre à côté
+        // des touches, entier, ni sur la flèche, ni sur un emoji du bord, ni sur la colonne de boutons.
+        let sideSwitch = c.sideSwitchProbe()
         // Le raccourci des dispositions : sur le clavier entier (il a sa place), entier et jamais sur les mots,
-        // avec ou sans suggestions ; pas sur le petit clavier à une main (il y serait écrasé).
+        // avec ou sans suggestions ; sur le petit clavier à une main, pas dans la barre (il y serait écrasé).
         layout { $0.mode = .full }
         let wide = c.visibilityProbe().layoutSwitch
         c.suggestionItems = ["bonjour", "bonsoir", "bonne"]
@@ -2010,7 +2013,7 @@ final class KeyboardCanvas: UIView {
             && !c.layoutSwitch.frame.intersects(c.chips.frame) && c.chips.frame.width >= 3 * 78
         c.suggestionItems = []
         let ok = !off.emoji && !off.adjust && off.mode && !off.mic && !off.hide && !off.clip && !off.layoutSwitch
-            && on.emoji && on.adjust && on.mode && on.mic && on.hide && on.clip && !on.layoutSwitch && wide && still && whole
+            && on.emoji && on.adjust && on.mode && on.mic && on.hide && on.clip && on.layoutSwitch && sideSwitch && wide && still && whole
         print("RESULT visibility off emoji=\(off.emoji) adjust=\(off.adjust) mode=\(off.mode) mic=\(off.mic) clip=\(off.clip) hide=\(off.hide) switch=\(off.layoutSwitch) on emoji=\(on.emoji) adjust=\(on.adjust) mode=\(on.mode) mic=\(on.mic) clip=\(on.clip) hide=\(on.hide) switch_petit=\(on.layoutSwitch) switch_entier=\(wide) stable=\(still) entier=\(whole) \(ok ? "yes" : "no")")
         let cached = KBVault.resolveAccess(shared: nil, cache: {
             var a = KBAccess()
@@ -2241,6 +2244,20 @@ final class KeyboardCanvas: UIView {
         let ok = plain && custom && partial && wrongType
         print("RESULT ordre_positions origine=\(plain) choisi=\(custom) incomplet_ou_inconnu=\(partial) mauvais_type=\(wrongType) \(ok ? "yes" : "no")")
         return ok
+    }
+
+    /// Le raccourci des dispositions est posé dans la place libre du clavier à une main : entier, dans cette place,
+    /// sans toucher la flèche, les emojis du bord ni les boutons du côté.
+    func sideSwitchProbe() -> Bool {
+        let f = layoutSwitch.frame
+        guard layoutSwitchInSide, layoutSwitch.superview === self, !layoutSwitch.isHidden, layoutSwitch.alpha > 0.5,
+              f.width >= Self.layoutSwitchWidth - 0.5, sideFree.insetBy(dx: -0.5, dy: -0.5).contains(f) else { return false }
+        let onHint = !sideHint.isHidden && sideHint.frame.intersects(f)
+        let onEmoji = panelButtons.contains { !$0.isHidden && panel.convert($0.frame, to: self).intersects(f) }
+        let side: [UIButton] = [globeButton, emojiButton, micButton, clipButton, adjustButton, hideButton]
+        let onButton = side.contains { !$0.isHidden && $0.frame.width > 1 && ($0.superview?.convert($0.frame, to: self) ?? .zero).intersects(f) }
+        let inBlocks = blocks.contains { $0.intersects(f) }
+        return !onHint && !onEmoji && !onButton && !inBlocks
     }
 
     /// Le globe des boutons (clavier à une main) est-il visible ?
@@ -2626,7 +2643,11 @@ final class KeyboardCanvas: UIView {
         // Une seule flèche, dans la place vraiment libre (ni sur les emojis du bord, ni sur la colonne de boutons).
         // Avant, deux flèches doubles étaient dessinées dans la même place : celle-ci (« ‹‹ » en texte, centrée sur
         // toute la place libre, donc parfois sur les boutons) et une image de chevrons posée par le panneau du côté.
-        let free = sideFree
+        // Le raccourci des dispositions posé en haut de la place libre : la flèche se range dessous.
+        var free = sideFree
+        if layoutSwitchInSide, !layoutSwitch.isHidden, free.height > 44 {
+            free = CGRect(x: free.minX, y: free.minY + 44, width: free.width, height: free.height - 44)
+        }
         guard eff.tapSideToMove, layoutMode.isOneHand, !showEmoji, !adjusting, panelRect.width > 0,
               free.width >= 44, free.height >= 44 else {
             sideHint.isHidden = true
@@ -2873,8 +2894,11 @@ final class KeyboardCanvas: UIView {
         // sans le voir. Il revient quand le message s'en va (voir toastEnded).
         let life = hold + 0.4
         toastUntil = ProcessInfo.processInfo.systemUptime + life
-        layoutSwitch.alpha = 0
-        layoutSwitch.isUserInteractionEnabled = false
+        // (Posé dans la place libre à côté des touches, il n'est pas sous le message : il reste.)
+        if !layoutSwitchInSide {
+            layoutSwitch.alpha = 0
+            layoutSwitch.isUserInteractionEnabled = false
+        }
         UIView.animate(withDuration: 0.4, delay: hold, options: [], animations: { self.toast.alpha = 0 })
         DispatchQueue.main.asyncAfter(deadline: .now() + life) { [weak self] in self?.toastEnded() }
     }
@@ -3511,7 +3535,7 @@ final class KeyboardCanvas: UIView {
         // Comme le clavier d'Apple sur le Duo ouvert : « … » ouvre un menu avec les deux dispositions, cochée.
         bigButton.setImage(UIImage(systemName: "ellipsis"), for: .normal)
         bigButton.accessibilityLabel = L("Keyboard position on this screen")
-        if layoutSwitch.superview !== topBar { topBar.addSubview(layoutSwitch) }
+        if layoutSwitch.superview == nil { topBar.addSubview(layoutSwitch) }
         bigButton.showsMenuAsPrimaryAction = false
         bigButton.menu = nil
         bigButton.tintColor = theme.text.withAlphaComponent(0.7)
@@ -3857,9 +3881,26 @@ final class KeyboardCanvas: UIView {
     private static let layoutSwitchWidth: CGFloat = 132
     private var switchStyledFor = ""
 
-    private var layoutSwitchFits: Bool {
+    /// Le raccourci est demandé ici (réglage allumé, bon écran, ni emojis ni barre ouverte) ; reste à lui trouver une place.
+    private var layoutSwitchWanted: Bool {
         let open = gripContext.hasPrefix("open")
-        guard settings.showLayoutSwitch, !settings.layoutSwitchOpenOnly || open, !showEmoji, !barOpened else { return false }
+        return settings.showLayoutSwitch && (!settings.layoutSwitchOpenOnly || open) && !showEmoji && !barOpened
+    }
+
+    /// Clavier à une main : la barre est trop courte pour le raccourci, mais la place libre à côté des touches peut
+    /// le porter, en haut, au-dessus de la flèche. Sans lui, celui qui a caché le bouton de position et le « … »
+    /// n'avait plus aucun moyen de quitter « suit la main » depuis le clavier (demande d'un testeur).
+    private var layoutSwitchSideFrame: CGRect? {
+        guard layoutSwitchWanted, !layoutSwitchFits, layoutMode.isOneHand, !adjusting, panelRect.width > 0 else { return nil }
+        let free = sideFree, w = Self.layoutSwitchWidth
+        guard free.width >= w + 16, free.height >= 100 else { return nil }
+        return CGRect(x: (free.midX - w / 2).rounded(), y: free.minY + 8, width: w, height: 30)
+    }
+    /// Le raccourci est posé dans la place libre (la flèche se range dessous, voir updateSideHint).
+    private var layoutSwitchInSide = false
+
+    private var layoutSwitchFits: Bool {
+        guard layoutSwitchWanted else { return false }
         // La largeur de la barre (pas celle des suggestions, qui change à chaque mot) : il ne clignote pas.
         let confine = layoutMode.isOneHand && panelRect.width > 0 && !blocks.isEmpty
         let span = confine ? (blocks.map(\.maxX).max() ?? bounds.width) - (blocks.map(\.minX).min() ?? 0) : bounds.width
@@ -3868,6 +3909,20 @@ final class KeyboardCanvas: UIView {
 
     private func placeLayoutSwitch(barHeight h: CGFloat) {
         let w = Self.layoutSwitchWidth
+        if let side = layoutSwitchSideFrame {
+            // Dans la place libre, à côté des touches : il sort de la barre.
+            layoutSwitchInSide = true
+            if layoutSwitch.superview !== self { addSubview(layoutSwitch) }
+            layoutSwitch.isHidden = false
+            layoutSwitch.alpha = trackpadOn ? 0 : 1
+            layoutSwitch.isUserInteractionEnabled = true
+            layoutSwitch.frame = side
+            styleLayoutSwitch(width: w)
+            bringSubviewToFront(layoutSwitch)
+            return
+        }
+        layoutSwitchInSide = false
+        if layoutSwitch.superview !== topBar { topBar.addSubview(layoutSwitch) }
         let show = layoutSwitchFits && chips.frame.width >= w + 60
         layoutSwitch.isHidden = !show
         // Effacé pendant le pavé tactile, et le temps d'un message dans la barre (voir flash).
@@ -3883,6 +3938,18 @@ final class KeyboardCanvas: UIView {
         layoutSwitch.frame = CGRect(x: left ? chips.frame.minX : chips.frame.maxX - w, y: (h - 30) / 2, width: w, height: 30)
         if left { chips.frame.origin.x += w + 8 }
         chips.frame.size.width = max(0, chips.frame.width - w - 8)
+        styleLayoutSwitch(width: w)
+        // Devant les suggestions, mais derrière le message de la barre : un message recouvre le raccourci, il ne
+        // passe plus dessous (son texte y était illisible).
+        let stack = topBar.subviews
+        if stack.last !== toast || stack.dropLast().last !== layoutSwitch {
+            topBar.bringSubviewToFront(layoutSwitch)
+            topBar.bringSubviewToFront(toast)
+        }
+    }
+
+    /// La position choisie et l'habillage du raccourci, où qu'il soit posé (barre ou place libre).
+    private func styleLayoutSwitch(width w: CGFloat) {
         if layoutSwitch.selectedSegmentIndex != openLayoutChoice {
             switchProgrammatic = true
             layoutSwitch.selectedSegmentIndex = openLayoutChoice
@@ -3896,13 +3963,6 @@ final class KeyboardCanvas: UIView {
             for i in 0..<layoutSwitch.numberOfSegments { layoutSwitch.setWidth(w / 3, forSegmentAt: i) }
             layoutSwitch.tintColor = theme.text
             layoutSwitch.accessibilityLabel = L("Keyboard position")
-        }
-        // Devant les suggestions, mais derrière le message de la barre : un message recouvre le raccourci, il ne
-        // passe plus dessous (son texte y était illisible).
-        let stack = topBar.subviews
-        if stack.last !== toast || stack.dropLast().last !== layoutSwitch {
-            topBar.bringSubviewToFront(layoutSwitch)
-            topBar.bringSubviewToFront(toast)
         }
     }
 
@@ -3929,7 +3989,8 @@ final class KeyboardCanvas: UIView {
         if !settings.showClipboardButton { hide(clipButton) }
         if !settings.hideKeyButton { hide(hideButton) }
         if !compactGlobe { hide(globeButton) }
-        if !layoutSwitchFits {
+        if !layoutSwitchFits && layoutSwitchSideFrame == nil {
+            layoutSwitchInSide = false
             layoutSwitch.isHidden = true
             layoutSwitch.alpha = 0
             layoutSwitch.isUserInteractionEnabled = false
