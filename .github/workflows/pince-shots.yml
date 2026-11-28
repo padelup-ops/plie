@@ -12,6 +12,10 @@ on:
         description: "Écrans à capturer appareil couché"
         required: false
         default: "game left grab"
+      preview:
+        description: "Taille dessinée sur l'iPad pour les écrans couchés (760x535 = Duo ouvert, 669x951 = Duo ouvert debout)"
+        required: false
+        default: "760x535"
       devices:
         description: "Simulateurs (duo iphone ipad)"
         required: false
@@ -35,7 +39,7 @@ jobs:
       ROUTES: ${{ inputs.routes || 'game left right high grab win collection all settings intro' }}
       LANG_CODE: ${{ inputs.lang || 'fr' }}
       WIDE_ROUTES: ${{ inputs.wide }}
-      PREVIEW: "760x535"
+      PREVIEW: ${{ inputs.preview || '760x535' }}
       # Chaque simulateur met un bon quart d'heure à démarrer : on ne lance que ceux qu'on veut voir.
       DEVICES: ${{ inputs.devices || 'duo iphone ipad' }}
     steps:
