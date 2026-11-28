@@ -693,8 +693,10 @@ final class Plush {
     var position: SIMD3<Float> { node.presentation.simdPosition }
 
     /// Le balancement : un ressort amorti, poussé par chaque changement de vitesse.
-    func sway(_ dt: Float) {
-        guard dt > 0 else { return }
+    /// Rend la force du choc quand le doudou vient de retomber sur quelque chose (0 sinon).
+    @discardableResult
+    func sway(_ dt: Float) -> Float {
+        guard dt > 0 else { return 0 }
         let p = position
         let velocity: SIMD3<Float>
         if let body = node.physicsBody {
@@ -731,5 +733,6 @@ final class Plush {
         let spread = radius * 3.2 * (1 + height * 0.3)
         shadow.simdScale = SIMD3<Float>(spread, spread, 1)
         shadow.opacity = CGFloat(max(0.2, 1 - height * 0.5))
+        return node.physicsBody == nil ? 0 : max(0, kick.y)
     }
 }

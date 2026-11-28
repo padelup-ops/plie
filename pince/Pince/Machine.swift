@@ -181,6 +181,11 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         case slipped
         /// La pince s'ouvre au-dessus de la trappe et lâche le doudou.
         case released
+        /// Le chariot arrive en butée contre un bord de la machine.
+        case bumped
+        /// Une secousse : la pince prend un à-coup, arrive au bout d'un balancement, ou un doudou retombe.
+        /// La force va de 0 à 1.
+        case shake(Float)
         case restocked
         case plop
         case won(Species)
@@ -226,6 +231,8 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     private var lastSpot = Box.home
     private var lastSpotSpeed = SIMD2<Float>(0, 0)
     private var cableLength: Float = 0.3
+    private var swingWas = SIMD2<Float>(0, 0)
+    private var lastShake: TimeInterval = 0
     /// Où se trouve vraiment la pince, vue de dessus : sous le chariot, plus le balancement.
     private var aim = Box.home
     /// La vitesse du treuil, qui démarre en douceur.
@@ -234,6 +241,9 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
     private var slipping: Float?
     /// Le doudou que les griffes ont seulement effleuré : il sursaute quand elles se referment.
     private var grazed: Plush?
+    /// Le chariot est-il en butée, en largeur et en profondeur ?
+    private var againstX = false
+    private var againstZ = false
     private var plushes: [Plush] = []
     private var held: Plush?
     /// Le dernier doudou gagné, posé dans le bac.
@@ -390,9 +400,18 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         case .idle:
             if simd_length(s) > 0.08 {
                 let before = spot
-                spot.x = max(Box.minX, min(Box.maxX, spot.x + s.x * 0.75 * dt))
-                spot.y = max(Box.minZ, min(Box.maxZ, spot.y - s.y * 0.75 * dt))
+                let wish = SIMD2<Float>(spot.x + s.x * 0.75 * dt, spot.y - s.y * 0.75 * dt)
+                spot.x = max(Box.minX, min(Box.maxX, wish.x))
+                spot.y = max(Box.minZ, min(Box.maxZ, wish.y))
                 if simd_distance(before, spot) > 0.0005 { moving = .travel }
+                // En butée : un choc, une seule fois, tant qu'on ne s'en est pas écarté.
+                let blockedX = wish.x != spot.x, blockedZ = wish.y != spot.y
+                if (blockedX && !againstX) || (blockedZ && !againstZ) { emit(.bumped) }
+                againstX = blockedX
+                againstZ = blockedZ
+            } else {
+                againstX = false
+                againstZ = false
             }
             if drop {
                 phase = .descending
@@ -531,7 +550,11 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         for k in 0..<3 { prongAngles[k] += (goals[k] - prongAngles[k]) * (1 - exp(-dt * snap)) }
         claw.angles = prongAngles
 
-        for p in plushes { p.sway(dt) }
+        for p in plushes {
+            // Un doudou qui retombe sur le sol ou sur un autre : on sent le choc.
+            let thump = p.sway(dt)
+            if thump > 0.9 { shake(min(1, thump / 4)) }
+        }
 
         // Un doudou tombé dans la trappe est gagné, qu'il ait été porté ou simplement poussé.
         // Il reste dans le bac, derrière sa vitre, jusqu'à ce qu'un autre s'approche de la trappe.
@@ -623,6 +646,13 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         clawShadow.opacity = CGFloat(max(0.25, 1 - headY * 0.42))
     }
 
+    /// Annonce une secousse, sans en envoyer plus d'une douzaine par seconde.
+    private func shake(_ strength: Float) {
+        guard lastTime - lastShake > 0.08 else { return }
+        lastShake = lastTime
+        emit(.shake(strength))
+    }
+
     /// Le balancement : un pendule. Chaque à-coup du chariot le lance, la pesanteur le ramène, et il s'amortit.
     /// Plus le câble est long, plus il est lent.
     private func sway(_ dt: Float) {
@@ -635,12 +665,18 @@ final class Machine: NSObject, SCNSceneRendererDelegate {
         let speed = (spot - lastSpot) / dt
         var jolt = speed - lastSpotSpeed
         if simd_length(jolt) > 1.2 { jolt = simd_normalize(jolt) * 1.2 }
+        // Le chariot démarre ou s'arrête net : on le sent.
+        if simd_length(jolt) > 0.3 { shake(min(1, simd_length(jolt) / 0.9)) }
         swingSpeed -= jolt / length * 0.36
         lastSpot = spot
         lastSpotSpeed = speed
         // Posée sur un doudou ou sur le sol, la pince ne se balance plus.
         let damping: Float = phase == .closing ? 16 : 2.4
         swingSpeed += (swing * (-7 / length) - swingSpeed * damping) * dt
+        // Au bout de chaque balancement, la pince repart dans l'autre sens : une petite secousse, à la mesure de l'élan.
+        let width = simd_length(swing)
+        if simd_dot(swingSpeed, swingWas) < 0, width > 0.035 { shake(min(1, width / 0.22) * 0.7) }
+        if simd_length(swingSpeed) > 0.02 { swingWas = swingSpeed }
         swing += swingSpeed * dt
         swing = simd_clamp(swing, SIMD2<Float>(-0.38, -0.38), SIMD2<Float>(0.38, 0.38))
         aim = spot + SIMD2<Float>(sin(swing.x), sin(swing.y)) * length

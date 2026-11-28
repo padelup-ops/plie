@@ -355,12 +355,16 @@ struct TopButtons: View {
 // MARK: - Les commandes
 
 struct Joystick: View {
+    @Environment(Game.self) private var game
     let diameter: CGFloat
     /// Sur la plaque sombre, un anneau clair détache le manche.
     var ringed = false
     let onMove: (CGSize) -> Void
     @State private var knob = CGSize.zero
     @State private var held = false
+    /// La direction du manche, parmi huit, et s'il est en bout de course : pour les crans qu'on sent sous le doigt.
+    @State private var sector: Int?
+    @State private var atEdge = false
 
     var body: some View {
         let reach = diameter * 0.27
@@ -392,10 +396,21 @@ struct Joystick: View {
                 .offset(knob)
         }
         .frame(width: diameter, height: diameter)
+        // Sans pièce dans la fente, le manche est verrouillé : il s'estompe et ne bouge pas.
+        .opacity(game.credit || game.busy ? 1 : 0.55)
+        .animation(.easeOut(duration: 0.2), value: game.credit)
         .contentShape(Circle())
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { drag in
+                    guard game.credit else {
+                        // On le touche quand même : la pièce s'agite pour rappeler de payer.
+                        if !held {
+                            held = true
+                            game.refuse()
+                        }
+                        return
+                    }
                     if !held {
                         held = true
                         Haptics.tap()
@@ -406,11 +421,21 @@ struct Joystick: View {
                         v.width *= reach / length
                         v.height *= reach / length
                     }
+                    // Une butée quand le manche arrive au bout, un cran quand il change de direction.
+                    let edge = length >= reach
+                    if edge, !atEdge { Haptics.stop() }
+                    atEdge = edge
+                    let now: Int? = length > reach * 0.35 ? Int((atan2(v.height, v.width) / (.pi / 4)).rounded()) & 7 : nil
+                    if let now, let sector, now != sector { Haptics.detent() }
+                    sector = now
                     knob = v
                     onMove(CGSize(width: v.width / reach, height: -v.height / reach))
                 }
                 .onEnded { _ in
+                    if held, knob != .zero { Haptics.spring() }
                     held = false
+                    sector = nil
+                    atEdge = false
                     withAnimation(.spring(response: 0.25, dampingFraction: 0.5)) { knob = .zero }
                     onMove(.zero)
                 }
@@ -484,6 +509,8 @@ struct CoinSlot: View {
     /// Vrai : la fente au-dessus, la pièce dessous. Faux : la pièce à gauche, la fente à droite.
     var vertical = false
     @State private var drag = CGSize.zero
+    @State private var lifted = false
+    @State private var near = false
     @State private var swallowed = false
     @State private var wiggle: CGFloat = 0
     @State private var pulse = false
@@ -492,10 +519,17 @@ struct CoinSlot: View {
     private let gap: CGFloat = 9
     private let slotW: CGFloat = 36
     private let slotH: CGFloat = 46
+    /// Tenue, la pièce se place un peu au-dessus du doigt : sinon il la cache.
+    private let lift: CGFloat = 46
 
     /// Le chemin de la pièce jusqu'à la fente.
     private var toSlot: CGSize {
         vertical ? CGSize(width: 0, height: -(coin / 2 + gap + slotH / 2)) : CGSize(width: coin / 2 + gap + slotW / 2, height: 0)
+    }
+
+    /// Où est la pièce par rapport à sa place : là où est le doigt, remontée d'un cran quand on la tient.
+    private var held: CGSize {
+        CGSize(width: drag.width, height: drag.height - (lifted ? lift : 0))
     }
 
     var body: some View {
@@ -507,23 +541,40 @@ struct CoinSlot: View {
                     .strokeBorder(Color.white.opacity(0.28), style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
                 if game.canInsert || swallowed {
                     CoinIcon(size: coin)
-                        .shadow(color: .black.opacity(0.35), radius: 3, x: 0, y: 3)
-                        .scaleEffect(swallowed ? 0.35 : (pulse && drag == .zero ? 1.08 : 1))
+                        .shadow(color: .black.opacity(lifted ? 0.45 : 0.35), radius: lifted ? 9 : 3, x: 0, y: lifted ? 12 : 3)
+                        .scaleEffect(swallowed ? 0.3 : (lifted ? 1.5 : (pulse ? 1.08 : 1)))
                         .opacity(swallowed ? 0 : 1)
-                        .offset(x: drag.width + wiggle, y: drag.height)
+                        .offset(x: held.width + wiggle, y: held.height)
                         .gesture(
-                            DragGesture(minimumDistance: 4)
-                                .onChanged { drag = $0.translation }
-                                .onEnded { _ in
-                                    let dx = drag.width - toSlot.width, dy = drag.height - toSlot.height
-                                    if hypot(dx, dy) < 30 { swallow() } else {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) { drag = .zero }
+                            // Dès qu'on pose le doigt, la pièce se soulève et le suit.
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { touch in
+                                    if !lifted {
+                                        withAnimation(.spring(response: 0.22, dampingFraction: 0.6)) { lifted = true }
+                                        Haptics.tap()
+                                    }
+                                    drag = touch.translation
+                                    let close = hypot(held.width - toSlot.width, held.height - toSlot.height) < 34
+                                    if close != near {
+                                        near = close
+                                        if close { Haptics.detent() }
                                     }
                                 }
+                                .onEnded { _ in
+                                    if near {
+                                        swallow()
+                                    } else {
+                                        withAnimation(.spring(response: 0.32, dampingFraction: 0.6)) {
+                                            drag = .zero
+                                            lifted = false
+                                        }
+                                    }
+                                    near = false
+                                }
                         )
-                        .onTapGesture { swallow() }
                         .accessibilityLabel(T("Mettre une pièce", "Insert a coin"))
                         .accessibilityAddTraits(.isButton)
+                        .accessibilityAction { swallow() }
                 }
             }
             .frame(width: coin, height: coin)
@@ -534,7 +585,7 @@ struct CoinSlot: View {
             withAnimation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) { pulse = true }
         }
         .onChange(of: game.nudge) { _, _ in
-            // On a appuyé sur le bouton sans payer : la pièce s'agite.
+            // On a touché une commande sans payer : la pièce s'agite.
             withAnimation(.linear(duration: 0.07).repeatCount(5, autoreverses: true)) { wiggle = 7 }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { wiggle = 0 }
         }
@@ -544,14 +595,15 @@ struct CoinSlot: View {
     private var slot: some View {
         VStack(spacing: 3) {
             Capsule()
-                .fill(Color(hex: game.credit ? 0x7CE0B0 : 0x2F1830))
-                .frame(width: 7, height: 22)
-                .shadow(color: Color(hex: 0x7CE0B0).opacity(game.credit ? 0.9 : 0), radius: 5)
+                .fill(Color(hex: game.credit ? 0x7CE0B0 : (near ? 0xFFF3B0 : 0x2F1830)))
+                .frame(width: near ? 9 : 7, height: near ? 26 : 22)
+                .shadow(color: Color(hex: game.credit ? 0x7CE0B0 : 0xFFE27A).opacity(game.credit || near ? 0.95 : 0), radius: near ? 8 : 5)
             Text("\(Game.cost)")
                 .font(.toon(11, .black))
                 .foregroundStyle(Color(hex: 0x7A4A12))
         }
         .frame(width: slotW, height: slotH)
+        .animation(.easeOut(duration: 0.12), value: near)
         .background(
             RoundedRectangle(cornerRadius: 9)
                 .fill(LinearGradient(colors: [Color(hex: 0xFFF0B8), Color(hex: 0xF2B84A)], startPoint: .top, endPoint: .bottom))
@@ -563,6 +615,7 @@ struct CoinSlot: View {
     private func swallow() {
         guard game.canInsert, !swallowed else { return }
         withAnimation(.easeIn(duration: 0.16)) {
+            lifted = false
             drag = toSlot
             swallowed = true
         }
@@ -650,12 +703,12 @@ struct ControlBar: View {
                 HStack(spacing: roomy ? 16 : 14) {
                     Joystick(diameter: stick, ringed: true) { game.stick($0) }
                     if roomy {
-                        CoinSlot(vertical: true)
+                        CoinSlot(vertical: true).zIndex(5)
                         DropControl(diameter: button, labelled: false)
                     } else {
                         VStack(spacing: 10) {
                             DropControl(diameter: min(button, height - menu - 102), labelled: false)
-                            CoinSlot()
+                            CoinSlot().zIndex(5)
                         }
                     }
                 }
