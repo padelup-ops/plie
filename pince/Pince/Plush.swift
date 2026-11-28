@@ -537,7 +537,7 @@ final class Plush {
         let overHole = p.x > Box.holeMinX && p.x < Box.holeMaxX && p.z > Box.holeMinZ && p.z < Box.holeMaxZ
         shadow.isHidden = overHole || p.y < radius * 0.5
         shadow.simdPosition = SIMD3<Float>(p.x, 0.004, p.z)
-        let spread = radius * 2.9 * (1 + height * 0.3)
+        let spread = radius * 3.2 * (1 + height * 0.3)
         shadow.simdScale = SIMD3<Float>(spread, spread, 1)
         shadow.opacity = CGFloat(max(0.2, 1 - height * 0.5))
     }

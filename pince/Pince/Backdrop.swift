@@ -203,7 +203,7 @@ enum Backdrop {
     static func blob() -> UIImage {
         canvas(128, 128, opaque: false) { c, size in
             let tint = UIColor(red: 0.22, green: 0.12, blue: 0.38, alpha: 1)
-            let colors = [tint.withAlphaComponent(0.42).cgColor, tint.withAlphaComponent(0.3).cgColor, tint.withAlphaComponent(0).cgColor] as CFArray
+            let colors = [tint.withAlphaComponent(0.5).cgColor, tint.withAlphaComponent(0.36).cgColor, tint.withAlphaComponent(0).cgColor] as CFArray
             guard let g = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors, locations: [0, 0.45, 1]) else { return }
             c.drawRadialGradient(g, startCenter: CGPoint(x: 64, y: 64), startRadius: 0, endCenter: CGPoint(x: 64, y: 64), endRadius: 62, options: [])
         }
