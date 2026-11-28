@@ -1,0 +1,103 @@
+# PINCE-DOUDOU : compile le jeu, le lance sur les simulateurs (iPhone Duo, iPhone, iPad) et capture les écrans (branche ci-pince-shots).
+name: Pince-Doudou - captures
+
+on:
+  push:
+    branches: ["claude/**"]
+    paths:
+      - "pince/Pince/**"
+      - "pince/project.yml"
+      - ".github/workflows/pince-shots.yml"
+  workflow_dispatch:
+    inputs:
+      routes:
+        description: "Écrans à capturer"
+        required: false
+        default: "game left right high grab win collection all settings intro"
+      lang:
+        description: "Langue (fr ou en)"
+        required: false
+        default: "fr"
+
+concurrency:
+  group: pince-shots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shots:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    env:
+      ROUTES: ${{ inputs.routes || 'game left right high grab win collection all settings intro' }}
+      LANG_CODE: ${{ inputs.lang || 'fr' }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Choisir Xcode 27.1
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_27.1*.app 2>/dev/null | grep -v beta | head -1)
+          sudo xcode-select -s "${XCODE:-/Applications/Xcode.app}"
+          xcodebuild -version
+      - name: Générer et compiler pour le simulateur
+        run: |
+          mkdir -p shots
+          command -v xcodegen >/dev/null || brew install xcodegen >/dev/null 2>&1
+          cd pince && xcodegen generate && cd ..
+          set -o pipefail
+          xcodebuild build -project pince/Pince.xcodeproj -scheme Pince -configuration Debug -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO 2>&1 | tee shots/build.log | grep -E "error:|BUILD (SUCCEEDED|FAILED)" || true
+          grep -n -B2 -A8 -E "error:" shots/build.log | head -400 > shots/erreurs.txt || true
+          grep -n -E "warning:" shots/build.log | grep "pince/Pince" | sort -u | head -80 > shots/avertissements.txt || true
+          tail -n 60 shots/build.log > shots/fin-build.txt
+          rm -f shots/build.log
+          grep -q "BUILD SUCCEEDED" shots/fin-build.txt
+      - name: Capturer
+        run: |
+          BID=com.padelup.pince
+          APP=$(find build -name "Pince.app" -path "*iphonesimulator*" | head -1)
+          [ "$LANG_CODE" = "en" ] && LANGS="(en)" || LANGS="(fr)"
+          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rs = [r for r in json.load(sys.stdin)['runtimes'] if r.get('platform') == 'iOS' and r.get('isAvailable')]
+          duo = [r for r in rs if any('Duo' in d.get('name', '') for d in r.get('supportedDeviceTypes', []))]
+          print((duo or rs)[-1]['identifier'] if rs else '')")
+          xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          for r in json.load(sys.stdin)['runtimes']:
+              if r.get('identifier') == '$RUNTIME':
+                  print('\n'.join(d['name'] + ' | ' + d['identifier'] for d in r.get('supportedDeviceTypes', [])))" > shots/appareils.txt
+          pick() { grep -E "$1" shots/appareils.txt | grep -v -E "${2:-ZZZ}" | tail -1 | sed 's/.* | //'; }
+          capture() {  # nom, type d'appareil, écrans
+            local NAME="$1" DT="$2" LIST="$3" N=0
+            [ -z "$DT" ] && { echo "pas d'appareil pour $NAME" >> shots/simulateur.txt; return 0; }
+            local UDID
+            UDID=$(xcrun simctl create "Pince $NAME" "$DT" "$RUNTIME") || return 0
+            echo "$NAME : $DT ($RUNTIME)" >> shots/simulateur.txt
+            xcrun simctl boot "$UDID"; xcrun simctl bootstatus "$UDID" -b
+            xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+            xcrun simctl install "$UDID" "$APP"
+            for R in $LIST; do
+              N=$((N+1))
+              xcrun simctl terminate "$UDID" "$BID" 2>/dev/null || true
+              xcrun simctl launch "$UDID" "$BID" -AppleLanguages "$LANGS" -shot "$R" > /dev/null 2>&1 || true
+              case "$R" in grab|win) sleep 14 ;; *) sleep 8 ;; esac
+              xcrun simctl io "$UDID" screenshot --mask=black "shots/$NAME-$(printf %02d $N)-$R.png" 2>>shots/erreurs-captures.txt || true
+            done
+            xcrun simctl shutdown "$UDID" || true
+          }
+          capture duo "$(pick 'Duo')" "$ROUTES"
+          capture iphone "$(pick '^iPhone' 'Duo|Max|Plus|SE|Air|e \|')" "game left grab win collection intro"
+          capture ipad "$(pick '^iPad Pro.*11|^iPad Pro 11')" "game right grab settings"
+      - name: Publier
+        if: always()
+        env:
+          GH_PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p shots && cd shots
+          echo "commit ${{ github.sha }} - $(date -u)" > commit.txt
+          git init -q -b ci-pince-shots
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Captures Pince-Doudou"
+          git push -q -f "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-pince-shots
